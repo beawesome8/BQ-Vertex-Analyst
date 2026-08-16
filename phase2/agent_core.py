@@ -25,19 +25,17 @@ phase3/grounding_gate.py's run_grounding_gate() -- full AST-based schema
 validation, join-path checking, a BLOCKING cardinality guard (not just a
 warning), and a real BigQuery dry-run cost check for answer_question mode.
 
-PACKAGE STRUCTURE: phase1/, phase2/, phase3/ are now proper Python
-packages (each has __init__.py). This file imports grounding_gate as
-`phase3.grounding_gate`, which means it MUST be run as a module from the
-repo root, not as a standalone script from inside phase2/:
+PACKAGE STRUCTURE: phase1/, phase2/, phase3/, phase4/ are proper Python
+packages (each has __init__.py). Run as a module from the repo root:
 
     python -m phase2.agent_core --mode answer --question "..."
 
-Running `python agent_core.py` directly from inside phase2/ will fail --
-Python won't be able to resolve the `phase3` package without the repo
-root on sys.path, which only happens automatically with `-m` invocation
-from the root. phase1/profile_schema.py and phase3/grounding_gate.py are
-unaffected by this -- they're self-contained and never import across
-phases, so they keep their original standalone invocation.
+Phase 4 wiring: execution + grounded answer generation now runs
+automatically after a passed grounding gate, via a CONDITIONAL graph
+edge -- not an if-check inside a node. This means a blocked query is
+structurally prevented from ever reaching execution; it's not just
+convention that it doesn't happen, the graph itself has no edge leading
+there for a blocked or suggest_questions result.
 
 What this phase deliberately does NOT do:
   - Execute any generated SQL against BigQuery (Phase 4)
@@ -70,6 +68,7 @@ from google.genai import types as genai_types
 from langgraph.graph import StateGraph, END
 
 from phase3.grounding_gate import run_grounding_gate, GateResult
+from phase4.execute_and_ground import execute_and_ground_answer
 
 PROJECT_ID = "bq-vertex-analyst"
 LOCATION = "us-central1"  # kept consistent with Phase 1 region decision --
@@ -96,6 +95,11 @@ class AgentState(TypedDict):
     gate_passed: Optional[bool]
     gate_blocking: list
     gate_dry_run_bytes: Optional[int]
+    execution_row_count: Optional[int]
+    execution_bytes_billed: Optional[int]
+    grounded_answer: Optional[str]
+    cited_values: list
+    hallucination_passed: Optional[bool]
 
 
 def load_schema_profile(path: Path = SCHEMA_PROFILE_PATH) -> list:
@@ -254,15 +258,60 @@ def node_grounding_gate(state: AgentState) -> AgentState:
     return state
 
 
+def node_execute_and_ground(state: AgentState) -> AgentState:
+    """
+    Only reached via conditional routing (_route_after_gate) when mode is
+    answer_question AND the grounding gate passed -- this is structural,
+    not a convention. A blocked or suggest_questions result has no graph
+    edge leading here at all.
+    """
+    sql = state["result"].get("sql", "")
+
+    try:
+        grounded, execution = execute_and_ground_answer(state["nl_question"], sql, PROJECT_ID)
+    except Exception as e:
+        state["warnings"].append(f"Execution/grounding failed: {e}")
+        return state
+
+    state["execution_row_count"] = execution.row_count
+    state["execution_bytes_billed"] = execution.bytes_billed
+    state["grounded_answer"] = grounded.answer
+    state["cited_values"] = grounded.cited_values
+    state["hallucination_passed"] = grounded.passed
+
+    if grounded.hallucination_violations:
+        state["warnings"].extend(grounded.hallucination_violations)
+
+    return state
+
+
+def _route_after_gate(state: AgentState) -> str:
+    """
+    Structural gate: only route to execution if this is an answer_question
+    result AND the grounding gate actually passed. Everything else (a
+    blocked query, or suggest_questions mode, which has no SQL to run)
+    goes straight to END.
+    """
+    if state["mode"] == "answer_question" and state.get("gate_passed"):
+        return "execute_and_ground"
+    return "end"
+
+
 def build_graph():
     graph = StateGraph(AgentState)
     graph.add_node("build_context", node_build_context)
     graph.add_node("generate", node_generate)
     graph.add_node("grounding_gate", node_grounding_gate)
+    graph.add_node("execute_and_ground", node_execute_and_ground)
     graph.set_entry_point("build_context")
     graph.add_edge("build_context", "generate")
     graph.add_edge("generate", "grounding_gate")
-    graph.add_edge("grounding_gate", END)
+    graph.add_conditional_edges(
+        "grounding_gate",
+        _route_after_gate,
+        {"execute_and_ground": "execute_and_ground", "end": END},
+    )
+    graph.add_edge("execute_and_ground", END)
     return graph.compile()
 
 
@@ -287,6 +336,11 @@ def main():
         "gate_passed": None,
         "gate_blocking": [],
         "gate_dry_run_bytes": None,
+        "execution_row_count": None,
+        "execution_bytes_billed": None,
+        "grounded_answer": None,
+        "cited_values": [],
+        "hallucination_passed": None,
     }
 
     final_state = app.invoke(initial_state)
@@ -301,6 +355,13 @@ def main():
             print("BLOCKING VIOLATIONS:")
             for v in final_state["gate_blocking"]:
                 print(f"  - {v}")
+
+    if final_state["grounded_answer"] is not None:
+        print(f"\nEXECUTION: {final_state['execution_row_count']} rows "
+              f"({final_state['execution_bytes_billed']:,} bytes billed)")
+        print(f"ANSWER: {final_state['grounded_answer']}")
+        print(f"CITED VALUES: {final_state['cited_values']}")
+        print(f"HALLUCINATION CHECK: {'PASSED' if final_state['hallucination_passed'] else 'FAILED'}")
 
     if final_state["warnings"]:
         print("\nWARNINGS:")
