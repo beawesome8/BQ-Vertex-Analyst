@@ -50,6 +50,7 @@ from pathlib import Path
 
 import sqlglot
 from sqlglot import exp
+from sqlglot.optimizer.scope import build_scope
 
 SCHEMA_PROFILE_PATH = Path(__file__).parent.parent / "phase1" / "schema_profile.json"
 
@@ -91,7 +92,37 @@ def _resolve_table(qualifier: str, alias_map: dict) -> str:
 
 
 def validate_sql_grounding(sql: str, schema_profile: list) -> tuple:
-    """Returns (blocking_violations: list[str], warnings: list[str])."""
+    """
+    Returns (blocking_violations: list[str], warnings: list[str]).
+
+    Scope-aware: uses sqlglot.optimizer.scope.build_scope() to resolve
+    each column/join within its ACTUAL query scope (root query vs. each
+    subquery), rather than one flat alias map for the entire AST.
+
+    This replaced an earlier flat version that produced false positives
+    on any query with a subquery: it would see a column name like
+    `order_id` referenced anywhere in the query text and flag it as
+    "ambiguous" even when it was unambiguous within its actual subquery
+    scope, and would warn "join not confirmed by FK" on joins involving a
+    derived-table alias, which can never match a real FK pair by
+    definition (it's not a real table). Found on the first query in this
+    project that happened to use a subquery -- see NOTES.md for the case.
+
+    Scope-awareness also enables a check the flat version could never do
+    at all: verifying a reference like `t1.some_col` (where t1 is a
+    subquery alias) against what that subquery ACTUALLY outputs in its
+    SELECT list, not just trusting the reference exists somewhere.
+
+    Residual, documented limitation: the cardinality guard's scope
+    resolution stops at one level -- if a DISTINCT/COUNT(DISTINCT ...)
+    argument resolves to a derived-table alias rather than a real table
+    column, this function does not recursively trace back through the
+    subquery to find the real underlying column. That case is silently
+    unchecked by the cardinality guard specifically (table/column
+    existence checks still apply to it via the derived-output check
+    above). Full recursive tracing is a reasonable future enhancement,
+    not built here -- flagged rather than silently pretended not to exist.
+    """
     blocking = []
     warnings = []
 
@@ -113,77 +144,116 @@ def validate_sql_grounding(sql: str, schema_profile: list) -> tuple:
         )
         return blocking, warnings
 
-    alias_map = {}
+    # Table existence is not scope-dependent -- a table either exists or it doesn't.
     for table_expr in parsed.find_all(exp.Table):
-        real_name = table_expr.name
-        alias = table_expr.alias_or_name
-        if real_name not in known_tables:
-            blocking.append(f"References table '{real_name}', which does not exist in the profiled schema.")
-        alias_map[alias] = real_name
+        if table_expr.name not in known_tables:
+            blocking.append(f"References table '{table_expr.name}', which does not exist in the profiled schema.")
 
-    for col_expr in parsed.find_all(exp.Column):
-        col_name = col_expr.name
-        qualifier = col_expr.table
+    root_scope = build_scope(parsed)
 
-        if qualifier:
-            real_table = _resolve_table(qualifier, alias_map)
-            if real_table in table_columns and col_name not in table_columns[real_table]:
-                blocking.append(
-                    f"Column '{qualifier}.{col_name}' does not exist on table "
-                    f"'{real_table}' in the profiled schema."
-                )
-        else:
-            referenced_tables = list(alias_map.values())
-            found_in = [t for t in referenced_tables if t in table_columns and col_name in table_columns[t]]
-            if not found_in:
-                blocking.append(f"Column '{col_name}' (unqualified) does not exist in any referenced table.")
-            elif len(found_in) > 1:
-                warnings.append(
-                    f"Column '{col_name}' is ambiguous across {found_in} -- "
-                    f"could not verify which table it actually belongs to."
-                )
+    def resolve_alias(scope, alias):
+        """Returns ('table', real_name) or ('derived', {output_col_names}) or None."""
+        source = scope.sources.get(alias)
+        if source is None:
+            return None
+        if isinstance(source, exp.Table):
+            return ("table", source.name)
+        return ("derived", {s.alias_or_name for s in source.expression.selects})
 
-    for join_expr in parsed.find_all(exp.Join):
-        on_clause = join_expr.args.get("on")
-        if isinstance(on_clause, exp.EQ):
-            left = on_clause.this
-            right = on_clause.args.get("expression")
-            if isinstance(left, exp.Column) and isinstance(right, exp.Column):
-                lt = _resolve_table(left.table, alias_map)
-                rt = _resolve_table(right.table, alias_map)
-                pair = frozenset([(lt, left.name), (rt, right.name)])
-                if pair not in fk_pairs:
+    for scope in root_scope.traverse():
+        local_real_tables = {
+            alias: resolved[1]
+            for alias in scope.sources
+            if (resolved := resolve_alias(scope, alias)) and resolved[0] == "table"
+        }
+
+        # --- Column existence + ambiguity, resolved within THIS scope only ---
+        for col_expr in scope.columns:
+            col_name = col_expr.name
+            qualifier = col_expr.table
+
+            if qualifier:
+                resolved = resolve_alias(scope, qualifier)
+                if resolved is None:
+                    continue  # alias not found in this scope -- defensive, shouldn't happen
+                kind, payload = resolved
+                if kind == "table":
+                    if payload in table_columns and col_name not in table_columns[payload]:
+                        blocking.append(
+                            f"Column '{qualifier}.{col_name}' does not exist on table '{payload}'."
+                        )
+                else:  # derived table (subquery/CTE)
+                    if col_name not in payload:
+                        blocking.append(
+                            f"Column '{qualifier}.{col_name}' is not among the derived "
+                            f"table's actual output columns {sorted(payload)}."
+                        )
+            else:
+                found_in = [t for t in local_real_tables.values() if t in table_columns and col_name in table_columns[t]]
+                if not found_in:
+                    blocking.append(f"Column '{col_name}' (unqualified) does not exist in any table in this scope.")
+                elif len(found_in) > 1:
                     warnings.append(
-                        f"Join condition {lt}.{left.name} = {rt}.{right.name} is not "
-                        f"confirmed by any inferred FK in the schema profile. May still "
-                        f"be valid -- FK inference has known false negatives -- flagged "
-                        f"for manual verification, not blocked."
+                        f"Column '{col_name}' is ambiguous within this scope across {found_in} -- "
+                        f"could not verify which table it actually belongs to."
                     )
 
-    def _flag_if_unreliable(col_expr):
-        real_table = _resolve_table(col_expr.table, alias_map) if col_expr.table else None
-        candidates = [real_table] if real_table else list(alias_map.values())
-        for t in candidates:
-            if (t, col_expr.name) in unreliable:
-                blocking.append(
-                    f"CARDINALITY GUARD: query claims a distinct-value count involving "
-                    f"'{t}.{col_expr.name}', which is marked cardinality_reliable=False. "
-                    f"True cardinality is unknown, only bounded by a clamp -- this claim "
-                    f"cannot be trusted and this query is blocked."
-                )
+        # --- Join-path check -- only when BOTH sides resolve to real tables in this scope ---
+        join_nodes = scope.expression.find_all(exp.Join) if hasattr(scope.expression, "find_all") else []
+        for join_expr in join_nodes:
+            on_clause = join_expr.args.get("on")
+            if isinstance(on_clause, exp.EQ):
+                left = on_clause.this
+                right = on_clause.args.get("expression")
+                if isinstance(left, exp.Column) and isinstance(right, exp.Column):
+                    lres = resolve_alias(scope, left.table)
+                    rres = resolve_alias(scope, right.table)
+                    if lres and rres and lres[0] == "table" and rres[0] == "table":
+                        pair = frozenset([(lres[1], left.name), (rres[1], right.name)])
+                        if pair not in fk_pairs:
+                            warnings.append(
+                                f"Join condition {lres[1]}.{left.name} = {rres[1]}.{right.name} is not "
+                                f"confirmed by any inferred FK in the schema profile. May still "
+                                f"be valid -- FK inference has known false negatives -- flagged "
+                                f"for manual verification, not blocked."
+                            )
+                    # If either side is a derived-table alias, the FK check does not apply --
+                    # correctly silent now, rather than a false "unconfirmed" warning.
 
-    for count_node in parsed.find_all(exp.Count):
-        if isinstance(count_node.this, exp.Distinct):
-            for col in count_node.this.find_all(exp.Column):
+        # --- Cardinality guard, scope-aware (see residual limitation in docstring) ---
+        def _flag_if_unreliable(col_expr, current_scope=scope):
+            if col_expr.table:
+                resolved = resolve_alias(current_scope, col_expr.table)
+                if resolved and resolved[0] == "table" and (resolved[1], col_expr.name) in unreliable:
+                    blocking.append(
+                        f"CARDINALITY GUARD: query claims a distinct-value count involving "
+                        f"'{resolved[1]}.{col_expr.name}', which is marked cardinality_reliable=False. "
+                        f"True cardinality is unknown, only bounded by a clamp -- this claim "
+                        f"cannot be trusted and this query is blocked."
+                    )
+            else:
+                for t in local_real_tables.values():
+                    if (t, col_expr.name) in unreliable:
+                        blocking.append(
+                            f"CARDINALITY GUARD: query claims a distinct-value count involving "
+                            f"'{t}.{col_expr.name}', which is marked cardinality_reliable=False. "
+                            f"True cardinality is unknown, only bounded by a clamp -- this claim "
+                            f"cannot be trusted and this query is blocked."
+                        )
+
+        scope_select = scope.expression
+        for count_node in (scope_select.find_all(exp.Count) if hasattr(scope_select, "find_all") else []):
+            if isinstance(count_node.this, exp.Distinct):
+                for col in count_node.this.find_all(exp.Column):
+                    _flag_if_unreliable(col)
+
+        for approx_node in (scope_select.find_all(exp.ApproxDistinct) if hasattr(scope_select, "find_all") else []):
+            for col in approx_node.find_all(exp.Column):
                 _flag_if_unreliable(col)
 
-    for approx_node in parsed.find_all(exp.ApproxDistinct):
-        for col in approx_node.find_all(exp.Column):
-            _flag_if_unreliable(col)
-
-    if parsed.args.get("distinct"):
-        for col in parsed.find_all(exp.Column):
-            _flag_if_unreliable(col)
+        if isinstance(scope_select, exp.Select) and scope_select.args.get("distinct"):
+            for col in scope.columns:
+                _flag_if_unreliable(col)
 
     return blocking, warnings
 
