@@ -1,0 +1,75 @@
+{
+  "total_cases": 8,
+  "total_passed": 8,
+  "pass_rate": 1.0,
+  "adversarial_guard_catch_rate": 1.0,
+  "scalar_accuracy_rate": 1.0,
+  "avg_latency_seconds": 14.911,
+  "avg_bytes_billed_per_query": 18874368.0,
+  "cases": [
+    {
+      "case_id": "blocked_events_user_id_direct",
+      "check_type": "blocked",
+      "passed": true,
+      "detail": "Correctly blocked",
+      "latency_seconds": 5.859402418136597,
+      "bytes_billed": null
+    },
+    {
+      "case_id": "blocked_events_user_id_rephrased",
+      "check_type": "blocked",
+      "passed": true,
+      "detail": "Correctly blocked",
+      "latency_seconds": 3.8581244945526123,
+      "bytes_billed": null
+    },
+    {
+      "case_id": "scalar_total_revenue",
+      "check_type": "scalar_accuracy",
+      "passed": true,
+      "detail": "Matched reference value 10784583.860146515 within tolerance 0.01",
+      "latency_seconds": 13.426262378692627,
+      "bytes_billed": 10485760
+    },
+    {
+      "case_id": "scalar_product_count",
+      "check_type": "scalar_accuracy",
+      "passed": true,
+      "detail": "Matched reference value 29120.0 within tolerance 0.0",
+      "latency_seconds": 19.5158748626709,
+      "bytes_billed": 10485760
+    },
+    {
+      "case_id": "scalar_avg_retail_price",
+      "check_type": "scalar_accuracy",
+      "passed": true,
+      "detail": "Matched reference value 59.220163865732225 within tolerance 0.01",
+      "latency_seconds": 13.466751337051392,
+      "bytes_billed": 10485760
+    },
+    {
+      "case_id": "structural_avg_order_value_by_state",
+      "check_type": "structural",
+      "passed": true,
+      "detail": "Passed gate, executed, hallucination-clean",
+      "latency_seconds": 19.28923010826111,
+      "bytes_billed": 31457280
+    },
+    {
+      "case_id": "structural_top_distribution_center",
+      "check_type": "structural",
+      "passed": true,
+      "detail": "Passed gate, executed, hallucination-clean",
+      "latency_seconds": 15.85236144065857,
+      "bytes_billed": 31457280
+    },
+    {
+      "case_id": "suggest_sanity",
+      "check_type": "suggest",
+      "passed": true,
+      "detail": "7 questions, gate clean",
+      "latency_seconds": 28.023107290267944,
+      "bytes_billed": null
+    }
+  ]
+}
