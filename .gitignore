@@ -2,3 +2,11 @@ venv/
 __pycache__/
 *.pyc
 .env
+
+# GCP service account keys -- should never exist in this repo at all now
+# that Workload Identity Federation is the auth mechanism (no long-lived
+# key needed). Kept as defense in depth in case one is ever created
+# locally by mistake, same lesson as the credential near-miss earlier in
+# this project.
+*key*.json
+ci-key.json
