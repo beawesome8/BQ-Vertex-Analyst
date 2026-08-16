@@ -1,0 +1,60 @@
+[
+  {
+    "id": "blocked_events_user_id_direct",
+    "mode": "answer",
+    "check_type": "blocked",
+    "question": "How many unique users have triggered events in the events table?",
+    "expect_violation_substring": "CARDINALITY GUARD"
+  },
+  {
+    "id": "blocked_events_user_id_rephrased",
+    "mode": "answer",
+    "check_type": "blocked",
+    "question": "What is the count of distinct users who generated events?",
+    "expect_violation_substring": "CARDINALITY GUARD",
+    "note": "Same underlying violation as blocked_events_user_id_direct, deliberately rephrased -- tests whether the guard holds under paraphrase, not just the exact wording that originally proved the failure."
+  },
+  {
+    "id": "scalar_total_revenue",
+    "mode": "answer",
+    "check_type": "scalar_accuracy",
+    "question": "What is the total revenue generated across all order items?",
+    "reference_sql": "SELECT SUM(sale_price) AS v FROM order_items",
+    "tolerance": 0.01
+  },
+  {
+    "id": "scalar_product_count",
+    "mode": "answer",
+    "check_type": "scalar_accuracy",
+    "question": "How many products are there in total?",
+    "reference_sql": "SELECT COUNT(*) AS v FROM products",
+    "tolerance": 0.0
+  },
+  {
+    "id": "scalar_avg_retail_price",
+    "mode": "answer",
+    "check_type": "scalar_accuracy",
+    "question": "What is the average retail price of all products?",
+    "reference_sql": "SELECT AVG(retail_price) AS v FROM products",
+    "tolerance": 0.01
+  },
+  {
+    "id": "structural_avg_order_value_by_state",
+    "mode": "answer",
+    "check_type": "structural",
+    "question": "What is the average order value by state?",
+    "note": "Multi-row result -- checked for successful gate pass, execution, and a hallucination-clean answer, not an exact scalar match."
+  },
+  {
+    "id": "structural_top_distribution_center",
+    "mode": "answer",
+    "check_type": "structural",
+    "question": "Which distribution center ships the most orders?"
+  },
+  {
+    "id": "suggest_sanity",
+    "mode": "suggest",
+    "check_type": "suggest",
+    "min_questions": 3
+  }
+]

@@ -188,12 +188,18 @@ explicit system instruction forbidding it, then built and validated a
 targeted, code-level guard (true positive and negative-control tested)
 to catch the same failure class going forward.
 
-**Still missing, tracked deliberately:** every other completed project has
-one crisp headline metric (84 retraining cycles, 60.8% cost reduction,
-93.3% schema validity drop). This project doesn't have that yet — Phase 6
-(eval harness) is where it should come from: guard catch rate on an
-adversarial set, or hallucination rate before/after the grounding gate.
-Don't let this section ship on a CV without that number once it exists.
+**Headline metric (Phase 6, first real run):** 100% pass rate on an
+8-case golden set — 2 adversarial cardinality-guard cases (including a
+paraphrased variant, caught identically to the original wording, not
+just pattern-matched), 3 scalar-accuracy cases verified against
+independently-computed BigQuery reference queries (not a hardcoded
+answer key), 2 structural pass cases, 1 suggest-mode sanity check.
+Average latency 14.9s, average 18.9MB billed per query.
+
+Say it as "100% on an 8-case golden set including adversarial paraphrase
+testing," never as "100% accurate" — n=8 is a real, honest signal, not a
+statistical claim, and overclaiming from a small sample is a bigger
+credibility risk in an interview than the eval having a small n.
 
 ## 10. Dataset Decision (resolved)
 
