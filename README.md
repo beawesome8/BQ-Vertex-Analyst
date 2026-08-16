@@ -1,9 +1,10 @@
 # BQ-Vertex-Analyst
 
-**Status:** Proposed — merged scope. Absorbs the previously-scoped
+**Status:** Phase 1 complete (tag `v0.1-dataset-profile`) — merged scope.
+Absorbs the previously-scoped
 "SQL Query Intelligence Agent" (see Section 3, Scope History).
 **Owner:** Aman Benjamin Emmanuel
-**Working title:** `BQ-Vertex-Analyst` (rename before repo creation)
+**Repo:** `BQ-Vertex-Analyst`
 
 ---
 
