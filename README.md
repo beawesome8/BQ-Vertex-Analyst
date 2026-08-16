@@ -99,6 +99,39 @@ Each phase ends in a git commit + tag. No silent handoffs.
 
 Scope is CLOSED at Phase 8 unless a specific JD justifies reopening it.
 
+## 6a. Phase 1 Retrospective (complete — tag `v0.1-dataset-profile`)
+
+Schema profiler for TheLook eCommerce, four iterations before the output
+could be trusted. Full detail in `phase1/NOTES.md`; summary here since this
+is what an interviewer reads first:
+
+1. **FK inference assumed every table's key column is named `id`.**
+   `orders` breaks that convention (its key is `order_id`), which silently
+   pointed `order_items.order_id` at a nonexistent column. Fixed by looking
+   up each candidate table's actual columns instead of hardcoding `.id`.
+
+2. **Cardinality sampling trusted the requested `TABLESAMPLE` fraction (10%)
+   instead of the fraction actually achieved.** Block-level sampling on
+   smaller tables silently grabbed 95-100% of rows, producing extrapolated
+   cardinality estimates up to 10x higher than the table's own row count —
+   a mathematically impossible result. Fixed by measuring the achieved
+   fraction via `COUNT(*)` and hard-clamping at `row_count` as a backstop.
+
+3. **Even with a correct fraction, block-level sampling can see a
+   non-representative slice of a column's value domain.** Caught via a
+   cross-table check: `events.user_id`'s estimated cardinality exceeded the
+   actual row count of `users` — impossible for a valid foreign key.
+   Clamped against the referenced table's real cardinality.
+
+4. **The clamp in (3) fixed the number but not the trust problem** — a
+   downstream consumer reading only `estimated_full_cardinality` had no way
+   to know it had been capped. Added a structured `cardinality_reliable`
+   boolean so Phase 2 can gate on this programmatically instead of parsing
+   free-text notes. `events.user_id` is currently the only column flagged
+   unreliable in this dataset; its true cardinality remains unknown, only
+   bounded — Phase 2 must treat it as off-limits for cardinality-dependent
+   reasoning, not silently trust the capped number.
+
 ## 7. Success Metrics (to be measured, not assumed)
 
 - Grounding gate catch rate on a deliberately adversarial eval subset with
