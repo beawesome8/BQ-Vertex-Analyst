@@ -1,0 +1,9 @@
+{
+  "sql": "SELECT COUNT(DISTINCT user_id) FROM events",
+  "tables_used": [
+    "events"
+  ],
+  "explanation": "This query counts the number of unique user IDs present in the 'events' table. The `DISTINCT` keyword ensures that each user is counted only once, even if they have triggered multiple events.",
+  "caveats": [],
+  "cardinality_guard_violation": true
+}
