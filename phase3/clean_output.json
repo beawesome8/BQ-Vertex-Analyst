@@ -1,0 +1,11 @@
+{
+  "sql": "SELECT\n    t2.state,\n    AVG(t1.total_order_value) AS average_order_value\n  FROM (\n    SELECT\n        order_id,\n        user_id,\n        SUM(sale_price) AS total_order_value\n      FROM\n        order_items\n      GROUP BY\n        order_id,\n        user_id\n  ) AS t1\n  INNER JOIN\n    users AS t2\n    ON t1.user_id = t2.id\n  GROUP BY\n    t2.state\n  ORDER BY\n    t2.state;",
+  "tables_used": [
+    "order_items",
+    "users"
+  ],
+  "explanation": "This query calculates the average order value for each state. It first sums the `sale_price` for all items within each order to get the `total_order_value`. Then, it joins this aggregated data with the `users` table on `user_id` to associate each order with a user's state. Finally, it groups the results by `state` and computes the average of the `total_order_value` for all orders originating from that state.",
+  "caveats": [
+    "The join between `order_items` and `users` relies on `order_items.user_id` and `users.id`. The foreign key relationship between `order_items.user_id` and `users.id` is inferred and not a declared constraint."
+  ]
+}
