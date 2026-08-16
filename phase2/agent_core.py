@@ -371,3 +371,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+# CI test comment -- safe to remove after this test
