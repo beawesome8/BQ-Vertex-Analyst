@@ -75,3 +75,40 @@ than accumulating narrow prompt-mode-specific patches.
   -- worth re-checking Model Garden before assuming this stays current.
 - The "AFC" (automatic function calling) warning printed on every run is
   cosmetic -- irrelevant since no tools are passed to `generate_content`.
+
+## Phase 3 integration + package restructure
+
+Wired Phase 3's `grounding_gate.py` into this file's LangGraph as a real
+node, replacing the original narrow, warn-only cardinality check
+entirely (not left alongside it -- the full gate supersedes it: blocking
+instead of warning, plus table/column/join checks the narrow version
+never had).
+
+Initially imported via a `sys.path` hack (`phase1/phase2/phase3` as flat
+scripts, not a package). Replaced with a proper package structure
+(`__init__.py` in each phase directory, `from phase3.grounding_gate
+import ...`) before this got any further, since the flat-script approach
+doesn't scale once more cross-phase imports show up in Phase 4+.
+
+**Breaking change to invocation:** `agent_core.py` must now be run as a
+module from the repo root, not as a standalone script from inside
+`phase2/`:
+
+    python -m phase2.agent_core --mode answer --question "..."
+
+Running `python agent_core.py` from inside `phase2/` now fails with
+`ModuleNotFoundError: No module named 'phase3'` -- verified this failure
+actually happens, not just assumed it would. `phase1/profile_schema.py`
+and `phase3/grounding_gate.py` are unaffected; they're self-contained and
+never import across phases, so they keep their original standalone
+invocation (`python profile_schema.py ...` / `python grounding_gate.py
+...`, run from inside their own directory).
+
+Verified against live APIs post-integration (not just the offline
+schema/AST checks): the proven cardinality-violation case still blocks
+correctly with no wasted dry-run call; a clean query passes with a real
+BigQuery dry-run byte count; and -- new evidence this round -- the
+join-path check correctly stayed silent on a query using two genuinely
+confirmed FKs, having previously correctly warned on a different query
+that didn't. Both the positive and negative case are now proven with real
+data, not just one or the other.

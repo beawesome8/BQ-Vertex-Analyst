@@ -19,6 +19,26 @@ SDK note: uses `google-genai` (`from google import genai`), NOT the older
 tutorials using `from vertexai.generative_models import GenerativeModel`,
 they're out of date.
 
+Phase 3 wiring: the narrow, warn-only cardinality check from the original
+Phase 2 build has been REPLACED by a real call into
+phase3/grounding_gate.py's run_grounding_gate() -- full AST-based schema
+validation, join-path checking, a BLOCKING cardinality guard (not just a
+warning), and a real BigQuery dry-run cost check for answer_question mode.
+
+PACKAGE STRUCTURE: phase1/, phase2/, phase3/ are now proper Python
+packages (each has __init__.py). This file imports grounding_gate as
+`phase3.grounding_gate`, which means it MUST be run as a module from the
+repo root, not as a standalone script from inside phase2/:
+
+    python -m phase2.agent_core --mode answer --question "..."
+
+Running `python agent_core.py` directly from inside phase2/ will fail --
+Python won't be able to resolve the `phase3` package without the repo
+root on sys.path, which only happens automatically with `-m` invocation
+from the root. phase1/profile_schema.py and phase3/grounding_gate.py are
+unaffected by this -- they're self-contained and never import across
+phases, so they keep their original standalone invocation.
+
 What this phase deliberately does NOT do:
   - Execute any generated SQL against BigQuery (Phase 4)
   - Validate SQL against real query cost / EXPLAIN plans (Phase 3)
@@ -49,6 +69,8 @@ from google import genai
 from google.genai import types as genai_types
 from langgraph.graph import StateGraph, END
 
+from phase3.grounding_gate import run_grounding_gate, GateResult
+
 PROJECT_ID = "bq-vertex-analyst"
 LOCATION = "us-central1"  # kept consistent with Phase 1 region decision --
                            # BigQuery public data lives in the US multi-region;
@@ -66,10 +88,14 @@ SCHEMA_PROFILE_PATH = Path(__file__).parent.parent / "phase1" / "schema_profile.
 class AgentState(TypedDict):
     mode: Literal["answer_question", "suggest_questions"]
     nl_question: Optional[str]
+    schema_profile: Optional[list]
     schema_context: Optional[str]
     raw_response: Optional[str]
     result: Optional[dict]
     warnings: list
+    gate_passed: Optional[bool]
+    gate_blocking: list
+    gate_dry_run_bytes: Optional[int]
 
 
 def load_schema_profile(path: Path = SCHEMA_PROFILE_PATH) -> list:
@@ -152,6 +178,7 @@ Rules you MUST follow, without exception:
 
 def node_build_context(state: AgentState) -> AgentState:
     profile = load_schema_profile()
+    state["schema_profile"] = profile
     state["schema_context"] = build_schema_context(profile)
     return state
 
@@ -193,88 +220,36 @@ def node_generate(state: AgentState) -> AgentState:
     return state
 
 
-def _get_unreliable_columns(profile: list) -> set:
-    """Set of (table, column) pairs marked cardinality_reliable=False."""
-    unreliable = set()
-    for table in profile:
-        for col in table["columns"]:
-            if col.get("cardinality_reliable") is False:
-                unreliable.add((table["table"], col["name"]))
-    return unreliable
-
-
-def _check_cardinality_violations(sql: str, unreliable_columns: set) -> list:
+def node_grounding_gate(state: AgentState) -> AgentState:
     """
-    Narrow, targeted check: does the generated SQL make a distinct-value
-    claim (COUNT(DISTINCT ...), APPROX_COUNT_DISTINCT(...), or a bare
-    SELECT DISTINCT) over any column flagged cardinality_reliable=False?
+    Replaces Phase 2's original narrow, warn-only cardinality check. Now
+    calls Phase 3's real grounding gate: AST-based table/column existence
+    validation, join-path checking against inferred FKs, a BLOCKING
+    cardinality guard (not a warning), DDL/DML rejection, and -- for
+    answer_question mode -- a real BigQuery dry-run cost check.
 
-    This deliberately does NOT validate general table/column existence or
-    join correctness -- that's Phase 3's grounding gate. It exists only to
-    catch one specific, proven failure mode: the system instruction alone
-    did not stop the model from generating
-    `SELECT COUNT(DISTINCT user_id) FROM events` when asked directly,
-    despite events.user_id being explicitly marked CARDINALITY UNKNOWN in
-    the schema context it was given. Prompt instructions are not
-    enforcement -- this function is the actual enforcement for this one
-    failure mode, in code, not prose.
-    """
-    violations = []
-    distinct_patterns = [
-        r"COUNT\s*\(\s*DISTINCT\s+(?:\w+\.)?(\w+)\s*\)",
-        r"APPROX_COUNT_DISTINCT\s*\(\s*(?:\w+\.)?(\w+)\s*\)",
-        r"SELECT\s+DISTINCT\s+(?:\w+\.)?(\w+)",
-    ]
-    matched_columns = set()
-    for pattern in distinct_patterns:
-        for m in re.finditer(pattern, sql, re.IGNORECASE):
-            matched_columns.add(m.group(1).lower())
-
-    for table, column in unreliable_columns:
-        if column.lower() in matched_columns:
-            violations.append(
-                f"CARDINALITY GUARD VIOLATION: generated SQL claims a distinct-value "
-                f"count involving '{table}.{column}', which is marked "
-                f"cardinality_reliable=False (true cardinality unknown -- Phase 1's "
-                f"clamp only bounds it, doesn't measure it). The system instruction "
-                f"told the model not to do this; it did it anyway. This query should "
-                f"not be trusted or executed as-is."
-            )
-    return violations
-
-
-def node_lightweight_check(state: AgentState) -> AgentState:
-    """
-    NOT the Phase 3 grounding gate. That's a dedicated phase with cost
-    dry-runs, table/column existence checks against the real schema, and
-    an actual block/allow decision. This is two narrow, code-enforced
-    checks -- not prompt-based trust -- covering failure modes already
-    proven to occur:
-      1. A write/DDL keyword slipping through (defense in depth; this
-         agent never executes anything, that's Phase 4's job).
-      2. A distinct-value claim over a column marked cardinality_reliable
-         =False -- proven to happen despite an explicit system instruction
-         not to (see _check_cardinality_violations docstring).
+    Dry-run only runs for answer_question mode (suggest_questions has no
+    SQL to dry-run) and only if the offline checks passed first -- see
+    run_grounding_gate()'s fail-fast ordering in phase3/grounding_gate.py.
     """
     if not state["result"]:
         return state
 
-    if state["mode"] == "answer_question":
-        sql = state["result"].get("sql", "")
+    gate_result: GateResult = run_grounding_gate(
+        agent_output=state["result"],
+        mode=state["mode"],
+        schema_profile=state["schema_profile"],
+        project_id=PROJECT_ID,
+        run_dry_run=(state["mode"] == "answer_question"),
+    )
 
-        banned = re.search(r"\b(DROP|DELETE|INSERT|UPDATE|ALTER|TRUNCATE|MERGE)\b", sql, re.IGNORECASE)
-        if banned:
-            state["warnings"].append(
-                f"Generated SQL contains a write/DDL keyword ({banned.group(0)}) -- "
-                f"a read-only agent should never produce this. DO NOT EXECUTE."
-            )
+    state["gate_passed"] = gate_result.passed
+    state["gate_blocking"] = gate_result.blocking_violations
+    state["gate_dry_run_bytes"] = gate_result.dry_run_bytes
+    state["warnings"].extend(gate_result.warnings)
 
-        profile = load_schema_profile()
-        unreliable_columns = _get_unreliable_columns(profile)
-        violations = _check_cardinality_violations(sql, unreliable_columns)
-        if violations:
-            state["warnings"].extend(violations)
-            state["result"]["cardinality_guard_violation"] = True
+    if not gate_result.passed:
+        state["result"]["grounding_gate_blocked"] = True
 
     return state
 
@@ -283,11 +258,11 @@ def build_graph():
     graph = StateGraph(AgentState)
     graph.add_node("build_context", node_build_context)
     graph.add_node("generate", node_generate)
-    graph.add_node("lightweight_check", node_lightweight_check)
+    graph.add_node("grounding_gate", node_grounding_gate)
     graph.set_entry_point("build_context")
     graph.add_edge("build_context", "generate")
-    graph.add_edge("generate", "lightweight_check")
-    graph.add_edge("lightweight_check", END)
+    graph.add_edge("generate", "grounding_gate")
+    graph.add_edge("grounding_gate", END)
     return graph.compile()
 
 
@@ -304,15 +279,29 @@ def main():
     initial_state: AgentState = {
         "mode": "answer_question" if args.mode == "answer" else "suggest_questions",
         "nl_question": args.question,
+        "schema_profile": None,
         "schema_context": None,
         "raw_response": None,
         "result": None,
         "warnings": [],
+        "gate_passed": None,
+        "gate_blocking": [],
+        "gate_dry_run_bytes": None,
     }
 
     final_state = app.invoke(initial_state)
 
     print(json.dumps(final_state["result"], indent=2))
+
+    if final_state["gate_passed"] is not None:
+        print(f"\nGROUNDING GATE: {'PASSED' if final_state['gate_passed'] else 'BLOCKED'}")
+        if final_state["gate_dry_run_bytes"] is not None:
+            print(f"Dry-run bytes: {final_state['gate_dry_run_bytes']:,}")
+        if final_state["gate_blocking"]:
+            print("BLOCKING VIOLATIONS:")
+            for v in final_state["gate_blocking"]:
+                print(f"  - {v}")
+
     if final_state["warnings"]:
         print("\nWARNINGS:")
         for w in final_state["warnings"]:
