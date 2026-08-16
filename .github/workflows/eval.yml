@@ -1,0 +1,90 @@
+name: Eval Harness Gate
+
+# SAFETY-CRITICAL CHOICE, do not change without understanding why:
+# This uses `pull_request`, NOT `pull_request_target`. `pull_request_target`
+# runs with access to repository secrets even for PRs from forks -- a
+# well-documented supply-chain attack vector where a stranger's PR can
+# exfiltrate credentials or run up billing on someone else's GCP project.
+# `pull_request` does NOT expose secrets to fork-originated PRs by default,
+# which is the correct, safe behavior for a public repo with a real GCP
+# service account key in its secrets. Never switch this to
+# `pull_request_target` to "fix" a fork-PR failing due to missing secrets --
+# that failure is the safety mechanism working as intended, not a bug.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "phase1/**"
+      - "phase2/**"
+      - "phase3/**"
+      - "phase4/**"
+      - "phase5/**"
+      - "phase6/**"
+      - "requirements.txt"
+      - ".github/workflows/eval.yml"
+  push:
+    branches: [main]
+    paths:
+      - "phase1/**"
+      - "phase2/**"
+      - "phase3/**"
+      - "phase4/**"
+      - "phase5/**"
+      - "phase6/**"
+      - "requirements.txt"
+
+# Path filters above are deliberate cost control: README/NOTES-only changes
+# don't trigger a run that costs real Gemini + BigQuery calls on every PR.
+
+permissions:
+  contents: read
+  id-token: write  # REQUIRED for Workload Identity Federation -- without
+                    # this, the job cannot request an OIDC token at all and
+                    # authentication fails before it even reaches GCP.
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    # Fork PRs will not have the WIF trust binding available (it's scoped to
+    # this exact repo's OIDC token via the attribute-condition set on the
+    # provider) -- this step will fail cleanly rather than silently skip, which is correct: a PR that
+    # touches agent/gate code but can't be evaluated should not be
+    # mergeable, not silently waved through.
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Authenticate to GCP (Workload Identity Federation -- no stored key)
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: "projects/536874652335/locations/global/workloadIdentityPools/github/providers/github-provider"
+          service_account: "bq-vertex-analyst-ci@bq-vertex-analyst.iam.gserviceaccount.com"
+        # This value and the service account email are NOT secret -- the
+        # security boundary is the attribute-condition set on the WIF
+        # provider (restricting to this exact repo), not secrecy of these
+        # identifiers, so they're safe to commit directly rather than
+        # stored as a GitHub secret.
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Run eval harness (blocks merge on regression)
+        working-directory: .
+        run: |
+          python -m phase6.eval_harness \
+            --project bq-vertex-analyst \
+            --output phase6/eval_report.json \
+            --min-pass-rate 1.0
+
+      - name: Upload eval report as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-report
+          path: phase6/eval_report.json

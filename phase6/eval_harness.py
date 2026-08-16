@@ -43,6 +43,7 @@ Prerequisites
 
 import argparse
 import json
+import sys
 import time
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
@@ -201,6 +202,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--project", default=PROJECT_ID)
     parser.add_argument("--output", default="eval_report.json")
+    parser.add_argument(
+        "--min-pass-rate", type=float, default=1.0,
+        help="Exit with a non-zero code if pass_rate falls below this. "
+             "This is the actual mechanism CI uses to block a merge -- a "
+             "GitHub Actions step fails based on exit code, not printed text."
+    )
     args = parser.parse_args()
 
     golden_set = load_golden_set()
@@ -252,6 +259,14 @@ def main():
     with open(args.output, "w") as f:
         json.dump(summary, f, indent=2)
     print(f"\nFull report written to {args.output}")
+
+    if summary["pass_rate"] is not None and summary["pass_rate"] < args.min_pass_rate:
+        print(
+            f"\nFAIL: pass_rate {summary['pass_rate']:.0%} is below the required "
+            f"threshold {args.min_pass_rate:.0%}. Exiting non-zero -- this is what "
+            f"a CI job checks to block a merge on regression."
+        )
+        sys.exit(1)
 
 
 if __name__ == "__main__":
