@@ -167,6 +167,34 @@ claim:
 Pick the framing per JD. Never present both in the same paragraph on a CV —
 it dilutes both claims.
 
+### Drafted bullets (from verified findings, not aspirational)
+
+**Data Analyst / Data Engineer framing:**
+Built a BigQuery schema profiler in Python that surfaced and fixed three
+distinct data-quality bugs during development, including a foreign-key
+inference error (assumed every table's key column was named `id`, which
+silently broke on a table using a self-named key) and a sampling bug
+where block-level `TABLESAMPLE` silently returned up to 10x inflated
+cardinality estimates; added a structured reliability flag so downstream
+consumers can programmatically distinguish verified statistics from
+unreliable ones instead of trusting a free-text caveat.
+
+**AI Engineer framing:**
+Built a LangGraph agent using Gemini on Vertex AI for schema-aware SQL
+generation and question recommendation; proved that prompt-only
+instructions are insufficient for enforcement by reproducing a case
+where the model stated a fabricated cardinality claim despite an
+explicit system instruction forbidding it, then built and validated a
+targeted, code-level guard (true positive and negative-control tested)
+to catch the same failure class going forward.
+
+**Still missing, tracked deliberately:** every other completed project has
+one crisp headline metric (84 retraining cycles, 60.8% cost reduction,
+93.3% schema validity drop). This project doesn't have that yet — Phase 6
+(eval harness) is where it should come from: guard catch rate on an
+adversarial set, or hallucination rate before/after the grounding gate.
+Don't let this section ship on a CV without that number once it exists.
+
 ## 10. Dataset Decision (resolved)
 
 **Chosen:** `bigquery-public-data.thelook_ecommerce` — multi-table relational
@@ -191,5 +219,6 @@ Section 9. These public tables have no declared FK constraints, so FK
 relationships are inferred by naming convention in Phase 1 and must be
 validated against actual data in Phase 3, not trusted as ground truth.
 
-Remaining open item: confirm no other backlog entries overlap with this
-before Phase 2 starts.
+Backlog overlap check: none found. Phase 1 and Phase 2 are both complete
+(tags `v0.1-dataset-profile`, `v0.2-agent-core`) — this line is now
+historical context for why TheLook was chosen, not an open task.
