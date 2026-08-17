@@ -78,7 +78,28 @@ warning.
 
 ## Branch protection is a manual step, not something a workflow file can set
 
-`on: pull_request` makes the check run and report a result. It does NOT
-by itself block a merge -- that requires enabling "Require status checks
-to pass before merging" for the `eval` check under Settings > Branches
-in the GitHub UI, a one-time manual step outside version control.
+`on: pull_request` makes the check run and report a result. Enabling
+"Require status checks to pass before merging" for `eval` under
+Settings > Branches makes GitHub display and require that check.
+
+This went through two real, observed states while finishing this phase,
+not one assumed state -- worth recording both, since the second
+correction proves why guessing from a single observation is a mistake:
+
+1. **First observed state:** a direct push to `main` succeeded with
+   `remote: Bypassed rule violations for refs/heads/main: - Required
+   status check "eval" is expected`. At that point, "Do not allow
+   bypassing the above settings" was unchecked -- GitHub's default lets
+   repo admins bypass their own branch protection.
+2. **Second observed state, after enabling "Do not allow bypassing":** a
+   subsequent direct push was flatly rejected --
+   `GH006: Protected branch update failed for refs/heads/main`,
+   `[remote rejected] main -> main (protected branch hook declined)`.
+
+Current, confirmed state: **both "Require status checks to pass" (with
+`eval` selected) and "Do not allow bypassing the above settings" are
+enabled.** This is genuine full enforcement -- the `eval` check must
+pass before ANY change reaches `main`, including the repo owner's own
+direct pushes, with no bypass available to anyone. Getting this correction
+itself onto `main` required going through a real pull request rather
+than a direct push, which is itself live proof the rule now holds.
