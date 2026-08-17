@@ -10,3 +10,9 @@ __pycache__/
 # this project.
 *key*.json
 ci-key.json
+
+# Terraform local state and provider cache -- never commit, may contain
+# sensitive resource details, and .terraform/ is just downloaded binaries
+**/.terraform/
+*.tfstate
+*.tfstate.*

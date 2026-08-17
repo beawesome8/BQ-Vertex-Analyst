@@ -1,0 +1,261 @@
+2026-08-17T11:46:09.320+0200 [INFO]  Terraform version: 1.15.8
+2026-08-17T11:46:09.321+0200 [DEBUG] using github.com/hashicorp/go-tfe v1.105.0
+2026-08-17T11:46:09.321+0200 [DEBUG] using github.com/hashicorp/hcl/v2 v2.24.0
+2026-08-17T11:46:09.321+0200 [DEBUG] using github.com/hashicorp/terraform-svchost v0.2.1
+2026-08-17T11:46:09.321+0200 [DEBUG] using github.com/zclconf/go-cty v1.18.0
+2026-08-17T11:46:09.321+0200 [INFO]  Go runtime version: go1.25.10
+2026-08-17T11:46:09.321+0200 [INFO]  CLI args: []string{"C:\\Users\\benem\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Hashicorp.Terraform_Microsoft.Winget.Source_8wekyb3d8bbwe\\terraform.exe", "apply", "-var=billing_account_id=01901A-D07F42-AA26DC", "-var=project_number=536874652335"}
+2026-08-17T11:46:09.326+0200 [DEBUG] Attempting to open CLI config file: C:\Users\benem\AppData\Roaming\terraform.rc
+2026-08-17T11:46:09.327+0200 [DEBUG] File doesn't exist, but doesn't need to. Ignoring.
+2026-08-17T11:46:09.327+0200 [DEBUG] ignoring non-existing provider search directory terraform.d/plugins
+2026-08-17T11:46:09.327+0200 [DEBUG] ignoring non-existing provider search directory C:\Users\benem\AppData\Roaming\terraform.d\plugins
+2026-08-17T11:46:09.328+0200 [DEBUG] ignoring non-existing provider search directory C:\Users\benem\AppData\Roaming\HashiCorp\Terraform\plugins
+2026-08-17T11:46:09.328+0200 [INFO]  CLI command args: []string{"apply", "-var=billing_account_id=01901A-D07F42-AA26DC", "-var=project_number=536874652335"}
+2026-08-17T11:46:09.609+0200 [DEBUG] checking for provisioner in "."
+2026-08-17T11:46:09.609+0200 [DEBUG] checking for provisioner in "C:\\Users\\benem\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Hashicorp.Terraform_Microsoft.Winget.Source_8wekyb3d8bbwe"
+2026-08-17T11:46:09.611+0200 [INFO]  backend/local: starting Apply operation
+2026-08-17T11:46:09.616+0200 [DEBUG] ReferenceTransformer: "var.budget_amount_usd" references: []
+2026-08-17T11:46:09.616+0200 [DEBUG] ReferenceTransformer: "var.project_id" references: []
+2026-08-17T11:46:09.616+0200 [DEBUG] ReferenceTransformer: "var.billing_account_id" references: []
+2026-08-17T11:46:09.616+0200 [DEBUG] ReferenceTransformer: "var.project_number" references: []
+2026-08-17T11:46:09.616+0200 [DEBUG] Starting graph walk: walkInit
+2026-08-17T11:46:09.616+0200 [DEBUG] created provider logger: level=debug
+2026-08-17T11:46:09.616+0200 [INFO]  provider: configuring client automatic mTLS
+2026-08-17T11:46:09.627+0200 [DEBUG] provider: starting plugin: path=.terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe args=[".terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe"]
+2026-08-17T11:46:09.635+0200 [DEBUG] provider: plugin started: path=.terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe pid=13696
+2026-08-17T11:46:09.635+0200 [DEBUG] provider: waiting for RPC address: plugin=.terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe
+2026-08-17T11:46:09.694+0200 [INFO]  provider.terraform-provider-google_v5.45.2_x5.exe: configuring server automatic mTLS: timestamp="2026-08-17T11:46:09.692+0200"
+2026-08-17T11:46:09.706+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: plugin address: network=tcp address=127.0.0.1:10000 timestamp="2026-08-17T11:46:09.705+0200"
+2026-08-17T11:46:09.706+0200 [DEBUG] provider: using plugin: version=5
+2026-08-17T11:46:09.889+0200 [DEBUG] provider.stdio: received EOF, stopping recv loop: err="rpc error: code = Unavailable desc = error reading from server: EOF"
+2026-08-17T11:46:09.904+0200 [INFO]  provider: plugin process exited: plugin=.terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe id=13696
+2026-08-17T11:46:09.905+0200 [DEBUG] provider: plugin exited
+2026-08-17T11:46:09.905+0200 [DEBUG] Building and walking validate graph
+2026-08-17T11:46:09.905+0200 [DEBUG] ProviderTransformer: "google_billing_budget.cost_alert" (*terraform.NodeValidatableResource) needs provider["registry.terraform.io/hashicorp/google"]
+2026-08-17T11:46:09.906+0200 [DEBUG] ReferenceTransformer: "var.billing_account_id" references: []
+2026-08-17T11:46:09.906+0200 [DEBUG] ReferenceTransformer: "var.project_number" references: []
+2026-08-17T11:46:09.906+0200 [DEBUG] ReferenceTransformer: "var.budget_amount_usd" references: []
+2026-08-17T11:46:09.906+0200 [DEBUG] ReferenceTransformer: "provider[\"registry.terraform.io/hashicorp/google\"]" references: [var.project_id var.project_id]
+2026-08-17T11:46:09.906+0200 [DEBUG] ReferenceTransformer: "google_billing_budget.cost_alert" references: [var.billing_account_id var.project_number var.budget_amount_usd]
+2026-08-17T11:46:09.906+0200 [DEBUG] ReferenceTransformer: "var.project_id" references: []
+2026-08-17T11:46:09.906+0200 [DEBUG] Starting graph walk: walkValidate
+2026-08-17T11:46:09.906+0200 [DEBUG] created provider logger: level=debug
+2026-08-17T11:46:09.906+0200 [INFO]  provider: configuring client automatic mTLS
+2026-08-17T11:46:09.913+0200 [DEBUG] provider: starting plugin: path=.terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe args=[".terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe"]
+2026-08-17T11:46:09.917+0200 [DEBUG] provider: plugin started: path=.terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe pid=27472
+2026-08-17T11:46:09.917+0200 [DEBUG] provider: waiting for RPC address: plugin=.terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe
+2026-08-17T11:46:09.980+0200 [INFO]  provider.terraform-provider-google_v5.45.2_x5.exe: configuring server automatic mTLS: timestamp="2026-08-17T11:46:09.979+0200"
+2026-08-17T11:46:09.992+0200 [DEBUG] provider: using plugin: version=5
+2026-08-17T11:46:09.992+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: plugin address: address=127.0.0.1:10000 network=tcp timestamp="2026-08-17T11:46:09.992+0200"
+2026-08-17T11:46:10.040+0200 [DEBUG] provider.stdio: received EOF, stopping recv loop: err="rpc error: code = Unavailable desc = error reading from server: EOF"
+2026-08-17T11:46:10.052+0200 [INFO]  provider: plugin process exited: plugin=.terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe id=27472
+2026-08-17T11:46:10.052+0200 [DEBUG] provider: plugin exited
+2026-08-17T11:46:10.052+0200 [INFO]  backend/local: apply calling Plan
+2026-08-17T11:46:10.052+0200 [DEBUG] Building and walking plan graph for NormalMode
+2026-08-17T11:46:10.052+0200 [DEBUG] ProviderTransformer: "google_billing_budget.cost_alert (expand)" (*terraform.nodeExpandPlannableResource) needs provider["registry.terraform.io/hashicorp/google"]
+2026-08-17T11:46:10.052+0200 [DEBUG] ReferenceTransformer: "google_billing_budget.cost_alert (expand)" references: [var.billing_account_id var.project_number var.budget_amount_usd]
+2026-08-17T11:46:10.052+0200 [DEBUG] ReferenceTransformer: "var.project_id" references: []
+2026-08-17T11:46:10.052+0200 [DEBUG] ReferenceTransformer: "var.billing_account_id" references: []
+2026-08-17T11:46:10.052+0200 [DEBUG] ReferenceTransformer: "var.project_number" references: []
+2026-08-17T11:46:10.052+0200 [DEBUG] ReferenceTransformer: "var.budget_amount_usd" references: []
+2026-08-17T11:46:10.052+0200 [DEBUG] ReferenceTransformer: "provider[\"registry.terraform.io/hashicorp/google\"]" references: [var.project_id var.project_id]
+2026-08-17T11:46:10.052+0200 [DEBUG] Starting graph walk: walkPlan
+2026-08-17T11:46:10.053+0200 [DEBUG] created provider logger: level=debug
+2026-08-17T11:46:10.053+0200 [INFO]  provider: configuring client automatic mTLS
+2026-08-17T11:46:10.058+0200 [DEBUG] provider: starting plugin: path=.terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe args=[".terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe"]
+2026-08-17T11:46:10.062+0200 [DEBUG] provider: plugin started: path=.terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe pid=31972
+2026-08-17T11:46:10.062+0200 [DEBUG] provider: waiting for RPC address: plugin=.terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe
+2026-08-17T11:46:10.125+0200 [INFO]  provider.terraform-provider-google_v5.45.2_x5.exe: configuring server automatic mTLS: timestamp="2026-08-17T11:46:10.124+0200"
+2026-08-17T11:46:10.136+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: plugin address: address=127.0.0.1:10000 network=tcp timestamp="2026-08-17T11:46:10.136+0200"
+2026-08-17T11:46:10.136+0200 [DEBUG] provider: using plugin: version=5
+2026-08-17T11:46:10.185+0200 [INFO]  provider.terraform-provider-google_v5.45.2_x5.exe: Authenticating using DefaultClient...: @caller=github.com/hashicorp/terraform-provider-google/google/fwtransport/framework_config.go:1842 tf_provider_addr=registry.terraform.io/hashicorp/google tf_req_id=84936841-fbd7-3946-443f-fca90f0f35a9 @module=google tf_mux_provider="*proto5server.Server" tf_rpc=ConfigureProvider timestamp="2026-08-17T11:46:10.185+0200"
+2026-08-17T11:46:10.185+0200 [INFO]  provider.terraform-provider-google_v5.45.2_x5.exe:   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]: @module=google tf_mux_provider="*proto5server.Server" tf_provider_addr=registry.terraform.io/hashicorp/google tf_req_id=84936841-fbd7-3946-443f-fca90f0f35a9 tf_rpc=ConfigureProvider @caller=github.com/hashicorp/terraform-provider-google/google/fwtransport/framework_config.go:1843 timestamp="2026-08-17T11:46:10.185+0200"
+2026-08-17T11:46:10.186+0200 [INFO]  provider.terraform-provider-google_v5.45.2_x5.exe: Authenticating using DefaultClient...: tf_provider_addr=registry.terraform.io/hashicorp/google tf_rpc=ConfigureProvider @caller=github.com/hashicorp/terraform-provider-google/google/fwtransport/framework_config.go:1842 @module=google tf_mux_provider="*proto5server.Server" tf_req_id=84936841-fbd7-3946-443f-fca90f0f35a9 timestamp="2026-08-17T11:46:10.186+0200"
+2026-08-17T11:46:10.186+0200 [INFO]  provider.terraform-provider-google_v5.45.2_x5.exe:   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]: tf_req_id=84936841-fbd7-3946-443f-fca90f0f35a9 tf_rpc=ConfigureProvider @caller=github.com/hashicorp/terraform-provider-google/google/fwtransport/framework_config.go:1843 @module=google tf_mux_provider="*proto5server.Server" tf_provider_addr=registry.terraform.io/hashicorp/google timestamp="2026-08-17T11:46:10.186+0200"
+2026-08-17T11:46:10.186+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:10 [DEBUG] Waiting for state to become: [success]
+2026-08-17T11:46:10.488+0200 [INFO]  provider.terraform-provider-google_v5.45.2_x5.exe: Terraform is using this identity: suryanshitomar@gmail.com: @module=google tf_mux_provider="*proto5server.Server" tf_provider_addr=registry.terraform.io/hashicorp/google tf_req_id=84936841-fbd7-3946-443f-fca90f0f35a9 tf_rpc=ConfigureProvider @caller=github.com/hashicorp/terraform-provider-google/google/fwtransport/framework_config.go:1712 timestamp="2026-08-17T11:46:10.488+0200"
+2026-08-17T11:46:10.490+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:10 [INFO] Authenticating using DefaultClient...
+2026-08-17T11:46:10.490+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:10 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2026-08-17T11:46:10.491+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:10 [INFO] Authenticating using DefaultClient...
+2026-08-17T11:46:10.491+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:10 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2026-08-17T11:46:10.491+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:10 [DEBUG] Waiting for state to become: [success]
+2026-08-17T11:46:10.626+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:10 [INFO] Terraform is using this identity: suryanshitomar@gmail.com
+2026-08-17T11:46:10.626+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:10 [DEBUG] parent context canceled, cleaning up batcher batches
+2026-08-17T11:46:10.626+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:10 [DEBUG] parent context canceled, cleaning up batcher batches
+2026-08-17T11:46:10.626+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:10 [DEBUG] Stopping batcher "IAM"
+2026-08-17T11:46:10.626+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:10 [DEBUG] Stopping batcher "Service Usage"
+2026-08-17T11:46:10.627+0200 [DEBUG] Resource instance state not found for node "google_billing_budget.cost_alert", instance google_billing_budget.cost_alert
+2026-08-17T11:46:10.627+0200 [DEBUG] ReferenceTransformer: "google_billing_budget.cost_alert" references: []
+2026-08-17T11:46:10.627+0200 [DEBUG] refresh: google_billing_budget.cost_alert: no state, so not refreshing
+2026-08-17T11:46:10.635+0200 [WARN]  Provider "registry.terraform.io/hashicorp/google" produced an invalid plan for google_billing_budget.cost_alert, but we are tolerating it because it is using the legacy plugin SDK.
+    The following problems may be the cause of any confusing errors from downstream operations:
+      - .budget_filter[0].credit_types_treatment: planned value cty.StringVal("INCLUDE_ALL_CREDITS") for a non-computed attribute
+      - .threshold_rules[0].spend_basis: planned value cty.StringVal("CURRENT_SPEND") for a non-computed attribute
+      - .threshold_rules[1].spend_basis: planned value cty.StringVal("CURRENT_SPEND") for a non-computed attribute
+      - .threshold_rules[2].spend_basis: planned value cty.StringVal("CURRENT_SPEND") for a non-computed attribute
+2026-08-17T11:46:10.635+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:10 [DEBUG] [transport] [server-transport 0xc000485e00] Closing: Server.Stop called 
+2026-08-17T11:46:10.636+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:10 [DEBUG] [transport] [server-transport 0xc000485e00] loopyWriter exiting with error: transport closed by client 
+2026-08-17T11:46:10.636+0200 [DEBUG] provider.stdio: received EOF, stopping recv loop: err="rpc error: code = Unavailable desc = error reading from server: EOF"
+2026-08-17T11:46:10.648+0200 [INFO]  provider: plugin process exited: plugin=.terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe id=31972
+2026-08-17T11:46:10.648+0200 [DEBUG] provider: plugin exited
+2026-08-17T11:46:10.649+0200 [DEBUG] building apply graph to check for errors
+2026-08-17T11:46:10.649+0200 [DEBUG] Resource state not found for node "google_billing_budget.cost_alert", instance google_billing_budget.cost_alert
+2026-08-17T11:46:10.650+0200 [DEBUG] ProviderTransformer: "google_billing_budget.cost_alert" (*terraform.NodeApplyableResourceInstance) needs provider["registry.terraform.io/hashicorp/google"]
+2026-08-17T11:46:10.650+0200 [DEBUG] ProviderTransformer: "google_billing_budget.cost_alert (expand)" (*terraform.nodeExpandApplyableResource) needs provider["registry.terraform.io/hashicorp/google"]
+2026-08-17T11:46:10.650+0200 [DEBUG] ReferenceTransformer: "google_billing_budget.cost_alert (expand)" references: [var.billing_account_id var.project_number var.budget_amount_usd]
+2026-08-17T11:46:10.650+0200 [DEBUG] ReferenceTransformer: "var.project_id" references: []
+2026-08-17T11:46:10.650+0200 [DEBUG] ReferenceTransformer: "var.billing_account_id" references: []
+2026-08-17T11:46:10.650+0200 [DEBUG] ReferenceTransformer: "var.project_number" references: []
+2026-08-17T11:46:10.650+0200 [DEBUG] ReferenceTransformer: "var.budget_amount_usd" references: []
+2026-08-17T11:46:10.650+0200 [DEBUG] ReferenceTransformer: "google_billing_budget.cost_alert" references: [var.billing_account_id var.project_number var.budget_amount_usd]
+2026-08-17T11:46:10.650+0200 [DEBUG] ReferenceTransformer: "provider[\"registry.terraform.io/hashicorp/google\"]" references: [var.project_id var.project_id]
+2026-08-17T11:46:10.662+0200 [DEBUG] command: asking for input: "\nDo you want to perform these actions?"
+2026-08-17T11:46:13.199+0200 [INFO]  backend/local: apply calling Apply
+2026-08-17T11:46:13.199+0200 [DEBUG] Building and walking apply graph for NormalMode plan
+2026-08-17T11:46:13.199+0200 [DEBUG] Resource state not found for node "google_billing_budget.cost_alert", instance google_billing_budget.cost_alert
+2026-08-17T11:46:13.199+0200 [DEBUG] ProviderTransformer: "google_billing_budget.cost_alert" (*terraform.NodeApplyableResourceInstance) needs provider["registry.terraform.io/hashicorp/google"]
+2026-08-17T11:46:13.199+0200 [DEBUG] ProviderTransformer: "google_billing_budget.cost_alert (expand)" (*terraform.nodeExpandApplyableResource) needs provider["registry.terraform.io/hashicorp/google"]
+2026-08-17T11:46:13.199+0200 [DEBUG] ReferenceTransformer: "var.project_id" references: []
+2026-08-17T11:46:13.199+0200 [DEBUG] ReferenceTransformer: "var.billing_account_id" references: []
+2026-08-17T11:46:13.199+0200 [DEBUG] ReferenceTransformer: "var.project_number" references: []
+2026-08-17T11:46:13.199+0200 [DEBUG] ReferenceTransformer: "var.budget_amount_usd" references: []
+2026-08-17T11:46:13.199+0200 [DEBUG] ReferenceTransformer: "google_billing_budget.cost_alert" references: [var.billing_account_id var.project_number var.budget_amount_usd]
+2026-08-17T11:46:13.199+0200 [DEBUG] ReferenceTransformer: "provider[\"registry.terraform.io/hashicorp/google\"]" references: [var.project_id var.project_id]
+2026-08-17T11:46:13.199+0200 [DEBUG] ReferenceTransformer: "google_billing_budget.cost_alert (expand)" references: [var.billing_account_id var.project_number var.budget_amount_usd]
+2026-08-17T11:46:13.199+0200 [DEBUG] Starting graph walk: walkApply
+2026-08-17T11:46:13.200+0200 [DEBUG] created provider logger: level=debug
+2026-08-17T11:46:13.200+0200 [INFO]  provider: configuring client automatic mTLS
+2026-08-17T11:46:13.203+0200 [DEBUG] provider: starting plugin: path=.terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe args=[".terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe"]
+2026-08-17T11:46:13.207+0200 [DEBUG] provider: plugin started: path=.terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe pid=22376
+2026-08-17T11:46:13.207+0200 [DEBUG] provider: waiting for RPC address: plugin=.terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe
+2026-08-17T11:46:13.275+0200 [INFO]  provider.terraform-provider-google_v5.45.2_x5.exe: configuring server automatic mTLS: timestamp="2026-08-17T11:46:13.274+0200"
+2026-08-17T11:46:13.286+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: plugin address: address=127.0.0.1:10000 network=tcp timestamp="2026-08-17T11:46:13.286+0200"
+2026-08-17T11:46:13.286+0200 [DEBUG] provider: using plugin: version=5
+2026-08-17T11:46:13.329+0200 [INFO]  provider.terraform-provider-google_v5.45.2_x5.exe: Authenticating using DefaultClient...: tf_req_id=52d6a389-e114-9863-e925-6092fedb5f3c tf_rpc=ConfigureProvider @module=google tf_mux_provider="*proto5server.Server" tf_provider_addr=registry.terraform.io/hashicorp/google @caller=github.com/hashicorp/terraform-provider-google/google/fwtransport/framework_config.go:1842 timestamp="2026-08-17T11:46:13.329+0200"
+2026-08-17T11:46:13.329+0200 [INFO]  provider.terraform-provider-google_v5.45.2_x5.exe:   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]: @caller=github.com/hashicorp/terraform-provider-google/google/fwtransport/framework_config.go:1843 @module=google tf_mux_provider="*proto5server.Server" tf_provider_addr=registry.terraform.io/hashicorp/google tf_req_id=52d6a389-e114-9863-e925-6092fedb5f3c tf_rpc=ConfigureProvider timestamp="2026-08-17T11:46:13.329+0200"
+2026-08-17T11:46:13.329+0200 [INFO]  provider.terraform-provider-google_v5.45.2_x5.exe: Authenticating using DefaultClient...: @caller=github.com/hashicorp/terraform-provider-google/google/fwtransport/framework_config.go:1842 @module=google tf_mux_provider="*proto5server.Server" tf_rpc=ConfigureProvider tf_provider_addr=registry.terraform.io/hashicorp/google tf_req_id=52d6a389-e114-9863-e925-6092fedb5f3c timestamp="2026-08-17T11:46:13.329+0200"
+2026-08-17T11:46:13.329+0200 [INFO]  provider.terraform-provider-google_v5.45.2_x5.exe:   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]: @module=google tf_provider_addr=registry.terraform.io/hashicorp/google @caller=github.com/hashicorp/terraform-provider-google/google/fwtransport/framework_config.go:1843 tf_mux_provider="*proto5server.Server" tf_req_id=52d6a389-e114-9863-e925-6092fedb5f3c tf_rpc=ConfigureProvider timestamp="2026-08-17T11:46:13.329+0200"
+2026-08-17T11:46:13.330+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] Waiting for state to become: [success]
+2026-08-17T11:46:13.668+0200 [INFO]  provider.terraform-provider-google_v5.45.2_x5.exe: Terraform is using this identity: suryanshitomar@gmail.com: @caller=github.com/hashicorp/terraform-provider-google/google/fwtransport/framework_config.go:1712 tf_mux_provider="*proto5server.Server" tf_provider_addr=registry.terraform.io/hashicorp/google tf_req_id=52d6a389-e114-9863-e925-6092fedb5f3c @module=google tf_rpc=ConfigureProvider timestamp="2026-08-17T11:46:13.668+0200"
+2026-08-17T11:46:13.671+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [INFO] Authenticating using DefaultClient...
+2026-08-17T11:46:13.671+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2026-08-17T11:46:13.671+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [INFO] Authenticating using DefaultClient...
+2026-08-17T11:46:13.671+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [INFO]   -- Scopes: [https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email]
+2026-08-17T11:46:13.671+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] Waiting for state to become: [success]
+2026-08-17T11:46:13.778+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [INFO] Terraform is using this identity: suryanshitomar@gmail.com
+2026-08-17T11:46:13.778+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] parent context canceled, cleaning up batcher batches
+2026-08-17T11:46:13.778+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] Stopping batcher "Service Usage"
+2026-08-17T11:46:13.778+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] parent context canceled, cleaning up batcher batches
+2026-08-17T11:46:13.778+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] Stopping batcher "IAM"
+2026-08-17T11:46:13.783+0200 [WARN]  Provider "registry.terraform.io/hashicorp/google" produced an invalid plan for google_billing_budget.cost_alert, but we are tolerating it because it is using the legacy plugin SDK.
+    The following problems may be the cause of any confusing errors from downstream operations:
+      - .budget_filter[0].credit_types_treatment: planned value cty.StringVal("INCLUDE_ALL_CREDITS") for a non-computed attribute
+      - .threshold_rules[0].spend_basis: planned value cty.StringVal("CURRENT_SPEND") for a non-computed attribute
+      - .threshold_rules[1].spend_basis: planned value cty.StringVal("CURRENT_SPEND") for a non-computed attribute
+      - .threshold_rules[2].spend_basis: planned value cty.StringVal("CURRENT_SPEND") for a non-computed attribute
+2026-08-17T11:46:13.783+0200 [INFO]  Starting apply for google_billing_budget.cost_alert
+2026-08-17T11:46:13.783+0200 [DEBUG] google_billing_budget.cost_alert: applying the planned Create change
+2026-08-17T11:46:13.784+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] setting computed for "budget_filter.0.labels" from ComputedKeys
+2026-08-17T11:46:13.784+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] setting computed for "budget_filter.0.services" from ComputedKeys
+2026-08-17T11:46:13.784+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] setting computed for "budget_filter.0.credit_types" from ComputedKeys
+2026-08-17T11:46:13.784+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] setting computed for "budget_filter.0.subaccounts" from ComputedKeys
+2026-08-17T11:46:13.784+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] setting computed for "budget_filter.0.services" from ComputedKeys
+2026-08-17T11:46:13.784+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] setting computed for "budget_filter.0.labels" from ComputedKeys
+2026-08-17T11:46:13.784+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] setting computed for "budget_filter.0.credit_types" from ComputedKeys
+2026-08-17T11:46:13.784+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] setting computed for "budget_filter.0.subaccounts" from ComputedKeys
+2026-08-17T11:46:13.784+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] Creating new Budget: map[string]interface {}{"amount":map[string]interface {}{"specifiedAmount":map[string]interface {}{"currencyCode":"USD", "units":"10"}}, "budgetFilter":map[string]interface {}{"creditTypesTreatment":"INCLUDE_ALL_CREDITS", "projects":[]interface {}{"projects/536874652335"}}, "displayName":"bq-vertex-analyst cost alert", "thresholdRules":[]interface {}{map[string]interface {}{"spendBasis":"CURRENT_SPEND", "thresholdPercent":0.5}, map[string]interface {}{"spendBasis":"CURRENT_SPEND", "thresholdPercent":0.9}, map[string]interface {}{"spendBasis":"CURRENT_SPEND", "thresholdPercent":1}}}
+2026-08-17T11:46:13.784+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] Waiting for state to become: [success]
+2026-08-17T11:46:13.784+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] Retry Transport: starting RoundTrip retry loop
+2026-08-17T11:46:13.784+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] Retry Transport: request attempt 0
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:13 [DEBUG] Google API Request Details:
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: ---[ REQUEST ]---------------------------------------
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: POST /v1/billingAccounts/01901A-D07F42-AA26DC/budgets?alt=json HTTP/1.1
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Host: billingbudgets.googleapis.com
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: User-Agent: Terraform/1.15.8 (+https://www.terraform.io) Terraform-Plugin-SDK/2.33.0 terraform-provider-google/5.45.2
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Content-Length: 390
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Content-Type: application/json
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: X-Goog-User-Project: bq-vertex-analyst
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Accept-Encoding: gzip
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: {
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:  "amount": {
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:   "specifiedAmount": {
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:    "currencyCode": "USD",
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:    "units": "10"
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:   }
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:  },
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:  "budgetFilter": {
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:   "creditTypesTreatment": "INCLUDE_ALL_CREDITS",
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:   "projects": [
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:    "projects/536874652335"
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:   ]
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:  },
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:  "displayName": "bq-vertex-analyst cost alert",
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:  "thresholdRules": [
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:   {
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:    "spendBasis": "CURRENT_SPEND",
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:    "thresholdPercent": 0.5
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:   },
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:   {
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:    "spendBasis": "CURRENT_SPEND",
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:    "thresholdPercent": 0.9
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:   },
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:   {
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:    "spendBasis": "CURRENT_SPEND",
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:    "thresholdPercent": 1
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:   }
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:  ]
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: }
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe
+2026-08-17T11:46:13.785+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: -----------------------------------------------------
+2026-08-17T11:46:14.659+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:14 [DEBUG] Google API Response Details:
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: ---[ RESPONSE ]--------------------------------------
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: HTTP/2.0 400 Bad Request
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Alt-Svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Content-Type: application/json; charset=UTF-8
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Date: Mon, 17 Aug 2026 09:46:14 GMT
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Server: ESF
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Vary: Origin
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Vary: X-Origin
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Vary: Referer
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: X-Content-Type-Options: nosniff
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: X-Frame-Options: SAMEORIGIN
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: X-Xss-Protection: 0
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: {
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:   "error": {
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:     "code": 400,
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:     "message": "Request contains an invalid argument.",
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:     "status": "INVALID_ARGUMENT"
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:   }
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: }
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: -----------------------------------------------------
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:14 [DEBUG] Retry Transport: Stopping retries, last request failed with non-retryable error: googleapi: got HTTP response code 400 with body: HTTP/2.0 400 Bad Request
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Alt-Svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Content-Type: application/json; charset=UTF-8
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Date: Mon, 17 Aug 2026 09:46:14 GMT
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Server: ESF
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Vary: Origin
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Vary: X-Origin
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: Vary: Referer
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: X-Content-Type-Options: nosniff
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: X-Frame-Options: SAMEORIGIN
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: X-Xss-Protection: 0
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: {
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:   "error": {
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:     "code": 400,
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:     "message": "Request contains an invalid argument.",
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:     "status": "INVALID_ARGUMENT"
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe:   }
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: }
+2026-08-17T11:46:14.660+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:14 [DEBUG] Retry Transport: Returning after 1 attempts
+2026-08-17T11:46:14.660+0200 [ERROR] provider.terraform-provider-google_v5.45.2_x5.exe: Response contains error diagnostic: diagnostic_detail="" diagnostic_severity=ERROR diagnostic_summary="Error creating Budget: googleapi: Error 400: Request contains an invalid argument." tf_proto_version=5.6 tf_resource_type=google_billing_budget tf_provider_addr=registry.terraform.io/hashicorp/google tf_req_id=e0d2c60a-47dd-2dab-cfd5-e22abcf1bc3a tf_rpc=ApplyResourceChange @caller=github.com/hashicorp/terraform-plugin-go@v0.23.0/tfprotov5/internal/diag/diagnostics.go:58 @module=sdk.proto timestamp="2026-08-17T11:46:14.660+0200"
+2026-08-17T11:46:14.667+0200 [DEBUG] State storage *statemgr.Filesystem declined to persist a state snapshot
+2026-08-17T11:46:14.667+0200 [ERROR] vertex "google_billing_budget.cost_alert" error: Error creating Budget: googleapi: Error 400: Request contains an invalid argument.
+2026-08-17T11:46:14.675+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:14 [DEBUG] [transport] [server-transport 0xc000493500] Closing: Server.Stop called 
+2026-08-17T11:46:14.675+0200 [DEBUG] provider.terraform-provider-google_v5.45.2_x5.exe: 2026/08/17 11:46:14 [DEBUG] [transport] [server-transport 0xc000493500] loopyWriter exiting with error: transport closed by client 
+2026-08-17T11:46:14.676+0200 [DEBUG] provider.stdio: received EOF, stopping recv loop: err="rpc error: code = Unavailable desc = error reading from server: EOF"
+2026-08-17T11:46:14.689+0200 [INFO]  provider: plugin process exited: plugin=.terraform/providers/registry.terraform.io/hashicorp/google/5.45.2/windows_amd64/terraform-provider-google_v5.45.2_x5.exe id=22376
+2026-08-17T11:46:14.689+0200 [DEBUG] provider: plugin exited
