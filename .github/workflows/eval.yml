@@ -14,23 +14,29 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - "phase1/**"
-      - "phase2/**"
-      - "phase3/**"
-      - "phase4/**"
-      - "phase5/**"
-      - "phase6/**"
+      - "phase*/**"
+      # Glob, not a hardcoded per-phase list -- the original version listed
+      # phase1 through phase6 explicitly, which meant Phase 7 was silently
+      # excluded the moment its directory was created, since nobody
+      # remembered to add "phase7/**" to this file. That caused a real
+      # deadlock: a required check that structurally can never trigger for
+      # changes inside an unlisted phase directory blocks a PR forever,
+      # since GitHub has no result to satisfy the requirement with. A glob
+      # closes this permanently for every future phase directory.
       - "requirements.txt"
       - ".github/workflows/eval.yml"
   push:
     branches: [main]
     paths:
-      - "phase1/**"
-      - "phase2/**"
-      - "phase3/**"
-      - "phase4/**"
-      - "phase5/**"
-      - "phase6/**"
+      - "phase*/**"
+      # Glob, not a hardcoded per-phase list -- the original version listed
+      # phase1 through phase6 explicitly, which meant Phase 7 was silently
+      # excluded the moment its directory was created, since nobody
+      # remembered to add "phase7/**" to this file. That caused a real
+      # deadlock: a required check that structurally can never trigger for
+      # changes inside an unlisted phase directory blocks a PR forever,
+      # since GitHub has no result to satisfy the requirement with. A glob
+      # closes this permanently for every future phase directory.
       - "requirements.txt"
 
 # Path filters above are deliberate cost control: README/NOTES-only changes
