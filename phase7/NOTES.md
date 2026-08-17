@@ -103,3 +103,42 @@ pass before ANY change reaches `main`, including the repo owner's own
 direct pushes, with no bypass available to anyone. Getting this correction
 itself onto `main` required going through a real pull request rather
 than a direct push, which is itself live proof the rule now holds.
+
+## The enforcement mechanism found its own bug
+
+Getting the branch-protection correction onto `main` via a real PR
+surfaced a genuine design flaw: the workflow's `paths:` filter listed
+`phase1/**` through `phase6/**` explicitly. `phase7/NOTES.md` matched
+nothing in that list, so the `eval` check never triggered for this PR
+at all -- and a "Required" check that never runs doesn't satisfy branch
+protection, it just waits forever. The PR was structurally unable to
+merge, not because of anything wrong with its content, but because the
+trigger conditions and the merge requirement contradicted each other.
+This would have hit the identical wall on Phase 8 even without this
+correction PR surfacing it now.
+
+Fixed by replacing the hardcoded per-phase list with a single glob
+(`phase*/**`), closing this bug class for every future phase directory
+permanently rather than patching it phase-by-phase. Tradeoff, stated
+plainly: this means a future documentation-only change inside any phase
+folder will now also trigger a full, real, costly eval run -- a real
+cost increase versus the original design intent, deliberately traded for
+"a required check can never deadlock itself again."
+
+The fix commit itself only merged because it modified
+`.github/workflows/eval.yml`, which the (buggy) path filter did still
+match -- meaning the bug was fixed via a PR that could only succeed
+because it happened to touch the one path the broken filter still
+covered. Worth remembering as a genuinely good debugging story: the
+system's own required-check mechanism caught a gap in itself, and the
+fix was verified by the same mechanism it corrected, live, not asserted.
+
+## Final state, confirmed by an actual passing merge
+
+`beawesome8 merged 3 commits into main from fix-phase7-docs-2` --
+`2 checks passed`, merge commit `65b348d`. This is the end-to-end proof
+the whole system works: a required check that genuinely blocks until it
+passes, authenticated via WIF with no stored key, correctly triggered by
+the path-filter fix, run against live Gemini and BigQuery, and only then
+allowing the merge through. Confirmed via `git log` on `main` after
+`git pull`, not inferred from the GitHub UI alone.
